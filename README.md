@@ -1,2 +1,6 @@
-# SOR
-S Ö R
+S egítség
+Ö sszesítő
+R endszer
+
+
+projekt prototípus 🍺
