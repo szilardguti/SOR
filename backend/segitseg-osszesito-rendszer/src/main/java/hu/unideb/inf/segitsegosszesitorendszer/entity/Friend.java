@@ -1,6 +1,5 @@
 package hu.unideb.inf.segitsegosszesitorendszer.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -17,14 +16,22 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "role_table")
-public class Role {
+@Table(name = "friend_table")
+public class Friend {
+
 
     @Id
     @UuidGenerator
-    private UUID id;
-    
-    @Column(unique=true, nullable = false)
-    private String role;
+    private UUID debt_id;
 
+    private UUID sender;
+
+    private UUID requested;
+
+    private FriendStatus status;
+
+
+    private enum FriendStatus {
+        SENT, ACCEPTED, REMOVED
+    }
 }
