@@ -1,9 +1,10 @@
-package hu.unideb.inf.segitsegosszesitorendszer.service;
+package hu.unideb.inf.segitsegosszesitorendszer.service.security;
 
 import hu.unideb.inf.segitsegosszesitorendszer.config.CustomUserDetails;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,7 @@ public class UserServiceDetailsImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Nincs regisztrálva ilyen felhasználó."));
 
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                .map(role -> new SimpleGrantedAuthority(role.getRole().name().toUpperCase()))
                 .collect(Collectors.toList());
 
         return CustomUserDetails.builder()

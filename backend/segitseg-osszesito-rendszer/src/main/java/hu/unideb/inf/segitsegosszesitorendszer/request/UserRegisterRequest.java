@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegisterRequest {
+public class UserRegisterRequest {
     @NotBlank(message = "A felhasználónév nem lehet üres.")
     private String username;
     @NotBlank(message = "Az email cím nem lehet üres.")

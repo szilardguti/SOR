@@ -19,7 +19,11 @@ public class UserToRegisterResponse implements Converter<User, RegisterResponse>
         RegisterResponse destination = new RegisterResponse();
         destination.setUsername(source.getUsername());
         destination.setEmail(source.getEmail());
-        destination.setRoles(source.getRoles().stream().map(Role::getRole).collect(Collectors.toSet()));
+        destination.setRoles(source.getRoles()
+                .stream()
+                .map(role -> role.getRole().name().toUpperCase())
+                .collect(Collectors.toSet())
+        );
 
         return destination;
     }

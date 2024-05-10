@@ -28,4 +28,10 @@ public class TestController {
     public ResponseEntity<String> allTest(){
         return ResponseEntity.ok().body("allTest");
     }
+
+    @PreAuthorize("hasAnyAuthority('PUB')")
+    @GetMapping("/pub")
+    public ResponseEntity<String> pubTest(){
+        return ResponseEntity.ok().body("PIWO");
+    }
 }

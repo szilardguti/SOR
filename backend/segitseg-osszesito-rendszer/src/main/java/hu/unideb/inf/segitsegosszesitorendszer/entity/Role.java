@@ -1,5 +1,6 @@
 package hu.unideb.inf.segitsegosszesitorendszer.entity;
 
+import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -25,6 +26,6 @@ public class Role {
     private UUID id;
     
     @Column(unique=true, nullable = false)
-    private String role;
+    private Roles role;
 
 }

@@ -1,10 +1,8 @@
 package hu.unideb.inf.segitsegosszesitorendszer.entity;
 
+import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.HashSet;
@@ -32,11 +30,14 @@ public class Pub {
     @Column(nullable = false)
     private String password;
 
-    @Column(unique=true, nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String location;
+
+    @Column(nullable = false)
+    private PubStatus pubStatus = PubStatus.NONE;
 
     private String openMonday;
     private String openTuesday;
