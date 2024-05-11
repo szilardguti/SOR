@@ -50,10 +50,30 @@ public class UserService implements IUserService {
     }
 
     public RegisterResponse register(UserRegisterRequest registerRequest){
+        if (userExists(
+                registerRequest.getUsername(),
+                registerRequest.getEmail())
+        )
+            throw new UsernameNotFoundException("Már használatban lévő felhasználói adatok!");
+
         User user = modelMapper.map(registerRequest, User.class);
         User savedUser = userRepository.save(user);
         log.info(savedUser.getRoles().toString());
         return modelMapper.map(savedUser, RegisterResponse.class);
+    }
+
+    public boolean userExists(String username, String email) {
+        if (username != null) {
+            if (userRepository.existsByUsername(username))
+                return true;
+        }
+
+        if (email != null) {
+            if (userRepository.existsByEmail(email))
+                return true;
+        }
+
+        return false;
     }
 
     @Override
