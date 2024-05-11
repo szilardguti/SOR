@@ -1,5 +1,6 @@
 package hu.unideb.inf.segitsegosszesitorendszer.service.user;
 
+import hu.unideb.inf.segitsegosszesitorendszer.entity.Role;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.RoleRepository;
@@ -13,15 +14,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -30,9 +30,12 @@ import java.util.UUID;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final DaoAuthenticationProvider userAuthenticationProvider;
     private final ModelMapper modelMapper;
+
+
 
     public LoginResponse login(LoginRequest loginRequest){
         Authentication authentication = userAuthenticationProvider
@@ -107,5 +110,21 @@ public class UserService implements IUserService {
                     String.format("A felhasználó nem található az azonosítóval: %s", uuid)
             );
         return user.get();
+    }
+
+    @Override
+    public void addRole(UUID userUUID, Roles roleEnum) {
+        User user = getById(userUUID);
+        Optional<Role> role = roleRepository.findByRole(roleEnum);
+
+        if (role.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("A jogosultság nem található a névvel: %s", roleEnum)
+            );
+        Set<Role> userRoles = user.getRoles();
+        userRoles.add(role.get());
+        user.setRoles(userRoles);
+
+        userRepository.save(user);
     }
 }

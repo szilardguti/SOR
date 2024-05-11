@@ -2,6 +2,7 @@ package hu.unideb.inf.segitsegosszesitorendszer.handler;
 
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ExceptionResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,15 @@ public class GlobalExceptionHandler {
                 .exceptionMessage(ex.getMessage())
                 .build());
     }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ExceptionResponse> handleExpiredJwtException(ExpiredJwtException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionResponse.builder()
+                .exceptionMessage("Lejárt JWT token!")
+                .build());
+    }
+
+
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
