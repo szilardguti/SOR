@@ -2,6 +2,7 @@ package hu.unideb.inf.segitsegosszesitorendszer.config.security;
 
 import hu.unideb.inf.segitsegosszesitorendszer.config.jwt.AuthEntryPointJwt;
 import hu.unideb.inf.segitsegosszesitorendszer.config.jwt.JwtAuthFilter;
+import hu.unideb.inf.segitsegosszesitorendszer.handler.FilterChainExceptionHandler;
 import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.security.PubDetailsServiceImpl;
 import hu.unideb.inf.segitsegosszesitorendszer.service.security.UserServiceDetailsImpl;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
@@ -29,13 +31,15 @@ public class PubSecurityConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
 
     private final JwtService jwtService;
+    private final FilterChainExceptionHandler filterChainExceptionHandler;
 
 
-    public PubSecurityConfig(PubDetailsServiceImpl pubDetailsService, UserServiceDetailsImpl userServiceDetailsImpl, AuthEntryPointJwt unauthorizedHandler, JwtService jwtService) {
+    public PubSecurityConfig(PubDetailsServiceImpl pubDetailsService, UserServiceDetailsImpl userServiceDetailsImpl, AuthEntryPointJwt unauthorizedHandler, JwtService jwtService, FilterChainExceptionHandler filterChainExceptionHandler) {
         this.pubDetailsServiceImpl = pubDetailsService;
         this.userServiceDetailsImpl = userServiceDetailsImpl;
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtService = jwtService;
+        this.filterChainExceptionHandler = filterChainExceptionHandler;
     }
 
 
@@ -46,6 +50,7 @@ public class PubSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .anyRequest().authenticated())
                 .authenticationProvider(pubAuthenticationProvider())
+                .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
                 .addFilterBefore(pubAuthenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .cors().and().csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()

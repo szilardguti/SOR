@@ -1,14 +1,19 @@
 package hu.unideb.inf.segitsegosszesitorendszer.service.pub;
 
+import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
+import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.PubRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.request.LoginRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.PubRegisterRequest;
+import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
+import hu.unideb.inf.segitsegosszesitorendszer.response.PubResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -18,10 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -84,6 +86,59 @@ public class PubService implements IPubService {
         }
 
         throw new UsernameNotFoundException("Nincs regisztrálva ilyen vendéglátó hely.");
+    }
+
+    @Override
+    public List<Pub> getAll(PubStatus status) {
+        if (status != null)
+            return pubRepository.findAllByPubStatus(status);
+
+        return pubRepository.findAll();
+    }
+
+    @Override
+    public List<PubResponse> transformPubToPubResponse(List<Pub> pubs) {
+        List<PubResponse> responses = new ArrayList<>();
+
+        for (Pub pub :
+                pubs) {
+            PubResponse response = new PubResponse(
+                    pub.getPub_id(),
+                    pub.getEmail(),
+                    pub.getName(),
+                    pub.getLocation(),
+                    pub.getPubStatus(),
+
+                    pub.getOpenMonday(),
+                    pub.getOpenTuesday(),
+                    pub.getOpenWednesday(),
+                    pub.getOpenThursday(),
+                    pub.getOpenFriday(),
+                    pub.getOpenSaturday(),
+                    pub.getOpenSunday()
+            );
+            responses.add(response);
+        }
+        return responses;
+    }
+
+    @Override
+    public void updateStatus(UUID pubUUID, PubStatus status) {
+        Pub pub = getById(pubUUID);
+
+        pub.setPubStatus(status);
+        pubRepository.save(pub);
+    }
+
+    @Override
+    public Pub getById(UUID id) {
+        Optional<Pub> pub = pubRepository.findById(id);
+
+        if (pub.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("A kiszolgáló hely nem található az azonosítóval: %s", id)
+            );
+        return pub.get();
     }
 
 }

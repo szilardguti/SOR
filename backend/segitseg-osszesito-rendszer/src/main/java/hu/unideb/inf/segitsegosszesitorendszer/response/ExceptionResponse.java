@@ -9,4 +9,5 @@ import lombok.*;
 @Builder
 public class ExceptionResponse {
     private String exceptionMessage;
+    private Integer code;
 }

@@ -2,6 +2,7 @@ package hu.unideb.inf.segitsegosszesitorendszer.config.security;
 
 import hu.unideb.inf.segitsegosszesitorendszer.config.jwt.AuthEntryPointJwt;
 import hu.unideb.inf.segitsegosszesitorendszer.config.jwt.JwtAuthFilter;
+import hu.unideb.inf.segitsegosszesitorendszer.handler.FilterChainExceptionHandler;
 import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.security.PubDetailsServiceImpl;
 import hu.unideb.inf.segitsegosszesitorendszer.service.security.UserServiceDetailsImpl;
@@ -17,12 +18,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class UserSecurityConfig {
 
     private final JwtService jwtService;
+    private FilterChainExceptionHandler filterChainExceptionHandler;
 
     private final UserServiceDetailsImpl userServiceDetailsImpl;
     private final PubDetailsServiceImpl pubDetailsServiceImpl;
@@ -30,8 +33,9 @@ public class UserSecurityConfig {
 
     private final AuthEntryPointJwt unauthorizedHandler;
 
-    public UserSecurityConfig(JwtService jwtService, UserServiceDetailsImpl userServiceDetailsImpl, PubDetailsServiceImpl pubDetailsServiceImpl, AuthEntryPointJwt unauthorizedHandler) {
+    public UserSecurityConfig(JwtService jwtService, FilterChainExceptionHandler filterChainExceptionHandler, UserServiceDetailsImpl userServiceDetailsImpl, PubDetailsServiceImpl pubDetailsServiceImpl, AuthEntryPointJwt unauthorizedHandler) {
         this.jwtService = jwtService;
+        this.filterChainExceptionHandler = filterChainExceptionHandler;
         this.userServiceDetailsImpl = userServiceDetailsImpl;
         this.pubDetailsServiceImpl = pubDetailsServiceImpl;
         this.unauthorizedHandler = unauthorizedHandler;
@@ -41,10 +45,11 @@ public class UserSecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain filterChainUser(HttpSecurity http) throws Exception {
-        http.securityMatcher("/user/**", "/item/**", "/admin/**")
+        http.securityMatcher("/user/**", "/item/**", "/admin/**", "/pub/**")
                 .authorizeHttpRequests(auth -> auth
                     .anyRequest().authenticated())
                 .authenticationProvider(userAuthenticationProvider())
+                .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
                 .addFilterBefore(userAuthenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()

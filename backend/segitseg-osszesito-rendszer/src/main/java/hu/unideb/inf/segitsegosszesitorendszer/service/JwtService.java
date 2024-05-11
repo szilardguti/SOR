@@ -2,7 +2,9 @@ package hu.unideb.inf.segitsegosszesitorendszer.service;
 
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.NewJwtRequiredException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -25,19 +27,27 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String SECRET;
 
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws NewJwtRequiredException {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token) {
+    public Date extractExpiration(String token) throws NewJwtRequiredException {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String extractRoleGroup(String token) { return extractClaim(token, claims -> claims.get("rg", String.class)); }
+    public String extractRoleGroup(String token)
+            throws NewJwtRequiredException
+    { return extractClaim(token, claims -> claims.get("rg", String.class)); }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver)
+            throws NewJwtRequiredException {
+        try {
+            final Claims claims = extractAllClaims(token);
+            return claimsResolver.apply(claims);
+        }
+        catch (ExpiredJwtException jwtEx) {
+            throw new NewJwtRequiredException();
+        }
     }
 
     private Claims extractAllClaims(String token) {
@@ -49,11 +59,11 @@ public class JwtService {
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
+    private Boolean isTokenExpired(String token) throws NewJwtRequiredException {
         return extractExpiration(token).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, UserDetails userDetails) throws NewJwtRequiredException {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
@@ -91,7 +101,7 @@ public class JwtService {
     }
 
     public String getUsernameFromRequest(HttpServletRequest request)
-            throws JwtNotFoundException {
+            throws JwtNotFoundException, NewJwtRequiredException {
         Optional<String> token = getTokenFromRequest(request);
 
         if (token.isEmpty())

@@ -1,9 +1,13 @@
 package hu.unideb.inf.segitsegosszesitorendszer.handler;
 
+import hu.unideb.inf.segitsegosszesitorendszer.enums.ErrorCodes;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.NewJwtRequiredException;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ExceptionResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,13 +40,21 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ExceptionResponse> handleExpiredJwtException(ExpiredJwtException ex, WebRequest request) {
+    @ExceptionHandler(NewJwtRequiredException.class)
+    public ResponseEntity<ExceptionResponse> handleExpiredJwtException(NewJwtRequiredException ex, WebRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionResponse.builder()
-                .exceptionMessage("Lejárt JWT token!")
+                .exceptionMessage("Kérjük jelentkezzen be újra!")
+                .code(ErrorCodes.NEW_JWT.ordinal())
                 .build());
     }
 
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<ExceptionResponse> handleExpiredJwtServletException(ServletException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionResponse.builder()
+                .exceptionMessage(ex.getMessage())
+                .code(ErrorCodes.NEW_JWT.ordinal())
+                .build());
+    }
 
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -78,5 +90,16 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<?> resolveException(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              Exception e,
+                                              Integer code) {
+        response.setStatus(410);
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionResponse.builder()
+                .exceptionMessage(e.getMessage())
+                .code(code)
+                .build());
     }
 }
