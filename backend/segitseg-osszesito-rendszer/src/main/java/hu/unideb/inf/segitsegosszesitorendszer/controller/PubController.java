@@ -2,10 +2,15 @@ package hu.unideb.inf.segitsegosszesitorendszer.controller;
 
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
+import hu.unideb.inf.segitsegosszesitorendszer.entity.Stock;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
+import hu.unideb.inf.segitsegosszesitorendszer.request.AddOrUpdateStockRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.PubResponse;
+import hu.unideb.inf.segitsegosszesitorendszer.response.StockResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.pub.IPubService;
+import hu.unideb.inf.segitsegosszesitorendszer.service.stock.IStockService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +26,7 @@ import java.util.UUID;
 @Slf4j
 public class PubController {
     private final IPubService pubService;
+    private final IStockService stockService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all-admin")
@@ -60,5 +66,26 @@ public class PubController {
         return ResponseEntity.ok().body(
                 String.format("Új állapot sikeresen beállítva: %s", message)
         );
+    }
+
+    // IF NO STOCK ID IS GIVEN A NEW STOCK IS ADDED!
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'PUB')")
+    @PutMapping("/{pubUUID}/stock")
+    public ResponseEntity<String> addOrUpdateStock(@Valid @RequestBody AddOrUpdateStockRequest request,
+                                                   @PathVariable UUID pubUUID) {
+
+        stockService.addOrUpdateStock(pubUUID, request);
+
+        return ResponseEntity.ok().body("Raktári elem sikeresen módosítva!");
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN', 'PUB')")
+    @GetMapping("/{pubUUID}/stock")
+    public ResponseEntity<List<StockResponse>> getStock(@PathVariable UUID pubUUID) {
+
+        List<Stock> stocks = stockService.getStock(pubUUID);
+        List<StockResponse> response = stockService.transformStockToStockResponse(stocks);
+
+        return ResponseEntity.ok().body(response);
     }
 }

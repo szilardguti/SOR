@@ -5,6 +5,7 @@ import hu.unideb.inf.segitsegosszesitorendszer.request.AddItemRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IItemService {
     void addItem(AddItemRequest request);
@@ -13,4 +14,5 @@ public interface IItemService {
 
     List<ItemResponse> transformItemToItemResponse(List<Item> items);
 
+    Item getById(UUID id);
 }
