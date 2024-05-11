@@ -64,27 +64,23 @@ public class FriendService implements IFriendService {
     }
 
     @Override
-    public List<FriendResponse> getSentFriendRequests(String username) {
+    public List<Friend> getSentFriendRequests(String username) {
         User sender = userService.getByUsername(username);
 
-        List<Friend> sentFriendRequests = friendRepository
+        return friendRepository
                 .findAllBySenderAndStatus(sender.getUser_id(), Friend.FriendStatus.SENT);
-
-        return transformFriendToFriendResponse(sentFriendRequests);
     }
 
     @Override
-    public List<FriendResponse> getReceivedFriendRequests(String username) {
+    public List<Friend> getReceivedFriendRequests(String username) {
         User receiver = userService.getByUsername(username);
 
-        List<Friend> receivedFriendRequests = friendRepository
+        return friendRepository
                 .findAllByRequestedAndStatus(receiver.getUser_id(), Friend.FriendStatus.SENT);
-
-        return transformFriendToFriendResponse(receivedFriendRequests);
     }
 
     @Override
-    public List<FriendResponse> getActiveFriends(String username) {
+    public List<Friend> getActiveFriends(String username) {
         User user = userService.getByUsername(username);
 
         List<Friend> activeFriends = new ArrayList<>(friendRepository
@@ -93,7 +89,7 @@ public class FriendService implements IFriendService {
                 .findAllByRequestedAndStatus(user.getUser_id(), Friend.FriendStatus.ACCEPTED)
         );
 
-        return transformFriendToFriendResponse(activeFriends);
+        return activeFriends;
     }
 
     @Override
@@ -109,7 +105,7 @@ public class FriendService implements IFriendService {
         friendRepository.save(friend);
     }
 
-    private List<FriendResponse> transformFriendToFriendResponse(List<Friend> friends) {
+    public List<FriendResponse> transformFriendToFriendResponse(List<Friend> friends) {
         List<FriendResponse> responses = new ArrayList<>();
         for (Friend friend :
                 friends) {

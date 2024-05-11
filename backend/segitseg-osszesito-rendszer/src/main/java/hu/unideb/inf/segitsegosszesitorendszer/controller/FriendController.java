@@ -46,7 +46,9 @@ public class FriendController {
             throws JwtNotFoundException {
         String username = jwtService.getUsernameFromRequest(httpServletRequest);
 
-        List<FriendResponse> response = friendService.getSentFriendRequests(username);
+        List<FriendResponse> response = friendService.transformFriendToFriendResponse(
+            friendService.getSentFriendRequests(username)
+        );
 
         return ResponseEntity.ok().body(response);
     }
@@ -58,7 +60,9 @@ public class FriendController {
             throws JwtNotFoundException {
         String username = jwtService.getUsernameFromRequest(httpServletRequest);
 
-        List<FriendResponse> response = friendService.getReceivedFriendRequests(username);
+        List<FriendResponse> response = friendService.transformFriendToFriendResponse(
+                friendService.getReceivedFriendRequests(username)
+        );
 
         return ResponseEntity.ok().body(response);
     }
@@ -69,7 +73,9 @@ public class FriendController {
             throws JwtNotFoundException {
         String username = jwtService.getUsernameFromRequest(httpServletRequest);
 
-        List<FriendResponse> response = friendService.getActiveFriends(username);
+        List<FriendResponse> response = friendService.transformFriendToFriendResponse(
+                friendService.getActiveFriends(username)
+        );
 
         return ResponseEntity.ok().body(response);
     }

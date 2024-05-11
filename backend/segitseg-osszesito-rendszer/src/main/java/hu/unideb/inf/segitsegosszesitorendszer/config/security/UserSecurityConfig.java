@@ -41,7 +41,7 @@ public class UserSecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain filterChainUser(HttpSecurity http) throws Exception {
-        http.securityMatcher("/user/**")
+        http.securityMatcher("/user/**", "/item/**")
                 .authorizeHttpRequests(auth -> auth
                     .anyRequest().authenticated())
                 .authenticationProvider(userAuthenticationProvider())

@@ -42,7 +42,7 @@ public class PubSecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain filterChainAdmin(HttpSecurity http) throws Exception {
-        http.securityMatcher("/pub/**")
+        http.securityMatcher("/pub/**", "/item/**")
                 .authorizeHttpRequests(auth -> auth
                                 .anyRequest().authenticated())
                 .authenticationProvider(pubAuthenticationProvider())

@@ -15,11 +15,13 @@ public interface IFriendService {
 
     Friend getById(UUID uuid);
 
-    List<FriendResponse> getSentFriendRequests(String username);
+    List<Friend> getSentFriendRequests(String username);
 
-    List<FriendResponse> getReceivedFriendRequests(String username);
+    List<Friend> getReceivedFriendRequests(String username);
 
-    List<FriendResponse> getActiveFriends(String username);
+    List<Friend> getActiveFriends(String username);
 
     void updateFriend(String username, UUID friendUUID, UpdateFriendRequest request);
+
+    public List<FriendResponse> transformFriendToFriendResponse(List<Friend> friends);
 }
