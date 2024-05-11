@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,17 +31,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException, IOException {
+            throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
-        String token = null;
+        Optional<String> token;
         String username = null;
         String roleGroup = null;
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
-            token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
-            roleGroup = jwtService.extractRoleGroup(token);
+        token = jwtService.getTokenFromRequest(request);
+        if (token.isPresent()) {
+            username = jwtService.extractUsername(token.get());
+            roleGroup = jwtService.extractRoleGroup(token.get());
         }
 
         if(username != null
@@ -51,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     ? pubDetailsService.loadUserByUsername(username)
                     : userServiceDetails.loadUserByUsername(username);
 
-            if(jwtService.validateToken(token, userDetails)){
+            if(jwtService.validateToken(token.get(), userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken
                         = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

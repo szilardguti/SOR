@@ -6,7 +6,7 @@ import hu.unideb.inf.segitsegosszesitorendszer.request.PubRegisterRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.UserRegisterRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
-import hu.unideb.inf.segitsegosszesitorendszer.service.UserService;
+import hu.unideb.inf.segitsegosszesitorendszer.service.user.UserService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.pub.IPubService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

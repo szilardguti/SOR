@@ -1,11 +1,13 @@
 package hu.unideb.inf.segitsegosszesitorendszer.service;
 
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
@@ -74,5 +77,26 @@ public class JwtService {
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Optional<String> getTokenFromRequest(HttpServletRequest request) {
+        String token = null;
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        }
+
+        return Optional.ofNullable(token);
+    }
+
+    public String getUsernameFromRequest(HttpServletRequest request)
+            throws JwtNotFoundException {
+        Optional<String> token = getTokenFromRequest(request);
+
+        if (token.isEmpty())
+            throw new JwtNotFoundException("A JWT token nem található!");
+
+        return extractUsername(token.get());
     }
 }

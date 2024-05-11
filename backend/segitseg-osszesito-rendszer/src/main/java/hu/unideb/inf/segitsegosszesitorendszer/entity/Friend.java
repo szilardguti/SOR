@@ -3,10 +3,7 @@ package hu.unideb.inf.segitsegosszesitorendszer.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -16,13 +13,14 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "friend_table")
 public class Friend {
 
 
     @Id
     @UuidGenerator
-    private UUID debt_id;
+    private UUID friend_id;
 
     private UUID sender;
 
@@ -31,7 +29,7 @@ public class Friend {
     private FriendStatus status;
 
 
-    private enum FriendStatus {
+    public enum FriendStatus {
         SENT, ACCEPTED, REMOVED
     }
 }

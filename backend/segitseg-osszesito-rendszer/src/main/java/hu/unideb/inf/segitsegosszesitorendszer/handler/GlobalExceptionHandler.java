@@ -1,6 +1,8 @@
 package hu.unideb.inf.segitsegosszesitorendszer.handler;
 
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ExceptionResponse;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,6 +25,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ExceptionResponse.builder()
                         .exceptionMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(JwtNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleJwtNotFoundException(JwtNotFoundException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ExceptionResponse.builder()
+                .exceptionMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ExceptionResponse.builder()
+                .exceptionMessage(ex.getMessage())
                 .build());
     }
 

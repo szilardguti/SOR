@@ -1,4 +1,4 @@
-package hu.unideb.inf.segitsegosszesitorendszer.service;
+package hu.unideb.inf.segitsegosszesitorendszer.service.user;
 
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
@@ -8,6 +8,8 @@ import hu.unideb.inf.segitsegosszesitorendszer.request.LoginRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.UserRegisterRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
+import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,10 +21,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 @Slf4j
-public class UserService {
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -49,5 +53,27 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info(savedUser.getRoles().toString());
         return modelMapper.map(savedUser, RegisterResponse.class);
+    }
+
+    @Override
+    public User getByUsername(String username) throws EntityNotFoundException {
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("A felhasználó nem található a megadott névvel: %s", username)
+            );
+        return user.get();
+    }
+
+    @Override
+    public User getByEmail(String email) throws EntityNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("A felhasználó nem található a megadott emaillel: %s", email)
+            );
+        return user.get();
     }
 }
