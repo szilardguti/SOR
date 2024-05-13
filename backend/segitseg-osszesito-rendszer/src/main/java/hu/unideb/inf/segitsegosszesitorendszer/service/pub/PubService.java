@@ -1,14 +1,12 @@
 package hu.unideb.inf.segitsegosszesitorendszer.service.pub;
 
-import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
-import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.PubRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.request.LoginRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.PubRegisterRequest;
-import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
+import hu.unideb.inf.segitsegosszesitorendszer.request.SearchPubStockRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.PubResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
@@ -24,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -139,6 +138,20 @@ public class PubService implements IPubService {
                     String.format("A kiszolgáló hely nem található az azonosítóval: %s", id)
             );
         return pub.get();
+    }
+
+    @Override
+    public List<Pub> getAllByStock(SearchPubStockRequest request) {
+        List<Pub> pubs = getAll(PubStatus.ACCEPTED);
+
+        return pubs.stream()
+                .filter(pub
+                        -> pub.getStocks().stream()
+                        .map(stock -> stock.getStockItem().getItem_id())
+                        .collect(Collectors.toSet())
+                        .containsAll(request.items())
+                )
+                .toList();
     }
 
 }

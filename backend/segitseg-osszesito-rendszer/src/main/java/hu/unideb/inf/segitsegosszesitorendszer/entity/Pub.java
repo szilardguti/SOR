@@ -52,4 +52,8 @@ public class Pub {
 
     @OneToMany(mappedBy = "pub")
     private Set<PubEvent> events = new HashSet<>();
+
+    public boolean addStock(Stock stock) {
+        return this.stocks.add(stock);
+    }
 }

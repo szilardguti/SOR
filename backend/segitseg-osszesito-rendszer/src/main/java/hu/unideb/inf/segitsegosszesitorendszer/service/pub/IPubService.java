@@ -4,12 +4,12 @@ import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
 import hu.unideb.inf.segitsegosszesitorendszer.request.LoginRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.PubRegisterRequest;
+import hu.unideb.inf.segitsegosszesitorendszer.request.SearchPubStockRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.PubResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface IPubService {
@@ -26,4 +26,6 @@ public interface IPubService {
     void updateStatus(UUID pubUUID, PubStatus status);
 
     Pub getById(UUID id);
+
+    List<Pub> getAllByStock(SearchPubStockRequest request);
 }

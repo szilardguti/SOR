@@ -3,6 +3,7 @@ package hu.unideb.inf.segitsegosszesitorendszer.service.stock;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Stock;
+import hu.unideb.inf.segitsegosszesitorendszer.repository.PubRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.StockRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddOrUpdateStockRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
@@ -12,6 +13,7 @@ import hu.unideb.inf.segitsegosszesitorendszer.service.pub.IPubService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +27,12 @@ public class StockService implements IStockService{
 
     private final IItemService itemService;
     private final IPubService pubService;
+
     private final StockRepository stockRepository;
+    private final PubRepository pubRepository;
 
     @Override
+    @Transactional
     public void addOrUpdateStock(UUID pubUUID, AddOrUpdateStockRequest request) {
         Optional<Stock> stock = request.stock() == null
                 ? Optional.empty()
@@ -47,6 +52,9 @@ public class StockService implements IStockService{
                 .pub(pub)
                 .build();
         stockRepository.save(newStock);
+
+        pub.addStock(newStock);
+        pubRepository.save(pub);
     }
 
     @Override

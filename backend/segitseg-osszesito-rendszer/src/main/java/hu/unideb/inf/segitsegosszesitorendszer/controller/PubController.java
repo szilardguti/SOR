@@ -5,6 +5,7 @@ import hu.unideb.inf.segitsegosszesitorendszer.entity.Pub;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Stock;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.PubStatus;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddOrUpdateStockRequest;
+import hu.unideb.inf.segitsegosszesitorendszer.request.SearchPubStockRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.PubResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.StockResponse;
@@ -85,6 +86,16 @@ public class PubController {
 
         List<Stock> stocks = stockService.getStock(pubUUID);
         List<StockResponse> response = stockService.transformStockToStockResponse(stocks);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @GetMapping("/stock/search")
+    public ResponseEntity<List<PubResponse>> searchStock(@Valid @RequestBody SearchPubStockRequest request) {
+
+        List<Pub> pubs = pubService.getAllByStock(request);
+        List<PubResponse> response = pubService.transformPubToPubResponse(pubs);
 
         return ResponseEntity.ok().body(response);
     }
