@@ -1,6 +1,7 @@
 package hu.unideb.inf.segitsegosszesitorendszer.handler;
 
 import hu.unideb.inf.segitsegosszesitorendszer.enums.ErrorCodes;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.FinishedDebtException;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.NewJwtRequiredException;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ExceptionResponse;
@@ -77,6 +78,13 @@ public class GlobalExceptionHandler {
         String errorResponse = "Hozzáférés megtagadva. Nincs jogosultságod az erőforrás eléréséhez.";
         return  ResponseEntity.status(HttpStatus.FORBIDDEN).body(ExceptionResponse.builder()
                 .exceptionMessage(errorResponse)
+                .build());
+    }
+
+    @ExceptionHandler(FinishedDebtException.class)
+    public ResponseEntity<ExceptionResponse> handleFinishedDebtException(FinishedDebtException ex, WebRequest request) {
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ExceptionResponse.builder()
+                .exceptionMessage(ex.getMessage())
                 .build());
     }
 

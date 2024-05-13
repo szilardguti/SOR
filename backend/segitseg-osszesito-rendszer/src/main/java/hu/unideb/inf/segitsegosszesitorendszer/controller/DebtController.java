@@ -1,6 +1,7 @@
 package hu.unideb.inf.segitsegosszesitorendszer.controller;
 
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Debt;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.FinishedDebtException;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.NewJwtRequiredException;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtItemRequest;
@@ -71,10 +72,21 @@ public class DebtController {
     @PreAuthorize("hasAnyAuthority('USER')")
     @PutMapping("/{debtId}/item")
     public ResponseEntity<String> addOrUpdateDebtItem(@Valid @RequestBody AddDebtItemRequest request,
-                                                      @PathVariable UUID debtId) {
+                                                      @PathVariable UUID debtId)
+            throws FinishedDebtException {
 
         debtService.addOrUpdateDebtItemToDebt(debtId, request);
 
         return ResponseEntity.ok().body("Tartozás sikeresen feljegyezve!");
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PostMapping("/{debtId}/finish")
+    public ResponseEntity<String> addOrUpdateDebtItem(@PathVariable UUID debtId)
+            throws FinishedDebtException {
+
+        debtService.finishDebt(debtId);
+
+        return ResponseEntity.ok().body("Tartozás sikeresen lezárva!");
     }
 }

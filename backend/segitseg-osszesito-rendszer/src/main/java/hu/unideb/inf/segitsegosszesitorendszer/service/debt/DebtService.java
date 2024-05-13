@@ -4,6 +4,7 @@ import hu.unideb.inf.segitsegosszesitorendszer.entity.Debt;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.DebtItem;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
+import hu.unideb.inf.segitsegosszesitorendszer.exceptions.FinishedDebtException;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.DebtItemRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.DebtRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtItemRequest;
@@ -129,8 +130,12 @@ public class DebtService implements IDebtService {
 
     @Override
     @Transactional
-    public void addOrUpdateDebtItemToDebt(UUID debtId, AddDebtItemRequest request) {
+    public void addOrUpdateDebtItemToDebt(UUID debtId, AddDebtItemRequest request)
+            throws FinishedDebtException {
         Debt debt = getById(debtId);
+        if (debt.getFinish() != null)
+            throw new FinishedDebtException("A tartozás már lezárásra került!");
+
         Item item = itemService.getById(request.itemId());
 
         Set<DebtItem> debtItems = debt.getDebtItems();
@@ -166,6 +171,16 @@ public class DebtService implements IDebtService {
 
         debt.addDebtItem(newDebtItem);
 
+        debtRepository.save(debt);
+    }
+
+    @Override
+    public void finishDebt(UUID debtId) throws FinishedDebtException {
+        Debt debt = getById(debtId);
+        if (debt.getFinish() != null)
+            throw new FinishedDebtException("A tartozás már lezárásra került!");
+
+        debt.setFinish(LocalDateTime.now());
         debtRepository.save(debt);
     }
 }
