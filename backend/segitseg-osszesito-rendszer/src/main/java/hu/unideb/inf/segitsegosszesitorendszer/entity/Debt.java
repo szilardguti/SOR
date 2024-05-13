@@ -29,10 +29,14 @@ public class Debt {
     private User debtorUser;
 
     @Column(nullable = false)
-    @OneToMany(mappedBy = "debt")
+    @OneToMany(mappedBy = "debt", cascade = CascadeType.PERSIST)
     private Set<DebtItem> debtItems = new HashSet<>();
 
     private LocalDateTime start;
 
     private LocalDateTime finish;
+
+    public boolean addDebtItem(DebtItem debtItem) {
+        return this.debtItems.add(debtItem);
+    }
 }

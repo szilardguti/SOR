@@ -4,22 +4,24 @@ import hu.unideb.inf.segitsegosszesitorendszer.entity.Debt;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.DebtItem;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Item;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
+import hu.unideb.inf.segitsegosszesitorendszer.repository.DebtItemRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.DebtRepository;
+import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtItemRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.DebtItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.DebtResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.friend.IFriendService;
+import hu.unideb.inf.segitsegosszesitorendszer.service.item.IItemService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.user.IUserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +31,21 @@ public class DebtService implements IDebtService {
 
     private final IUserService userService;
     private final IFriendService friendService;
+    private final IItemService itemService;
+
     private final DebtRepository debtRepository;
+    private final DebtItemRepository debtItemRepository;
+
+    @Override
+    public Debt getById(UUID id) {
+        Optional<Debt> debt = debtRepository.findById(id);
+
+        if (debt.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("A tartozás nem található az azonosítóval: %s", id)
+            );
+        return debt.get();
+    }
 
     @Override
     public List<Debt> getAllByDebtorUsername(String username) {
@@ -109,5 +125,47 @@ public class DebtService implements IDebtService {
         debtRepository.save(newDebt);
 
         return newDebt.getDebt_id();
+    }
+
+    @Override
+    @Transactional
+    public void addOrUpdateDebtItemToDebt(UUID debtId, AddDebtItemRequest request) {
+        Debt debt = getById(debtId);
+        Item item = itemService.getById(request.itemId());
+
+        Set<DebtItem> debtItems = debt.getDebtItems();
+
+        Optional<DebtItem> updateDebtItem
+                = debtItems
+                .stream()
+                .filter(debtItem -> debtItem.getItem().equals(item))
+                .findFirst();
+
+        if (updateDebtItem.isPresent()) {
+            // delete item
+            if (request.quantity().equals(0)) {
+                debtItems.remove(updateDebtItem.get());
+                debtItemRepository.delete(updateDebtItem.get());
+                debtRepository.save(debt);
+            }
+            // update quantity
+            else {
+                updateDebtItem.get().setQuantity(request.quantity());
+                debtItemRepository.save(updateDebtItem.get());
+            }
+            return;
+        }
+
+        // make new debt item
+        DebtItem newDebtItem = DebtItem.builder()
+                .debt(debt)
+                .item(item)
+                .quantity(request.quantity())
+                .build();
+        debtItemRepository.save(newDebtItem);
+
+        debt.addDebtItem(newDebtItem);
+
+        debtRepository.save(debt);
     }
 }

@@ -3,9 +3,9 @@ package hu.unideb.inf.segitsegosszesitorendszer.controller;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Debt;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.JwtNotFoundException;
 import hu.unideb.inf.segitsegosszesitorendszer.exceptions.NewJwtRequiredException;
+import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtItemRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.AddDebtRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.DebtResponse;
-import hu.unideb.inf.segitsegosszesitorendszer.response.ItemResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.debt.IDebtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,5 +66,15 @@ public class DebtController {
             return ResponseEntity.badRequest().body(null);
 
         return ResponseEntity.ok().body(newDebtId);
+    }
+
+    @PreAuthorize("hasAnyAuthority('USER')")
+    @PutMapping("/{debtId}/item")
+    public ResponseEntity<String> addOrUpdateDebtItem(@Valid @RequestBody AddDebtItemRequest request,
+                                                      @PathVariable UUID debtId) {
+
+        debtService.addOrUpdateDebtItemToDebt(debtId, request);
+
+        return ResponseEntity.ok().body("Tartozás sikeresen feljegyezve!");
     }
 }
