@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequestMapping("/event")
 @RequiredArgsConstructor
@@ -61,5 +62,23 @@ public class EventController {
         List<EventResponse> responses = eventService.transformEventToEventResponse(events);
 
         return ResponseEntity.ok().body(responses);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    @PutMapping("/{eventId}/{userId}")
+    public ResponseEntity<String> addAttender(@PathVariable UUID eventId, @PathVariable UUID userId) {
+
+        eventService.addAttender(eventId, userId);
+
+        return ResponseEntity.ok().body("Felhasználó sikeresen feljegyezve!");
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    @DeleteMapping("/{eventId}/{userId}")
+    public ResponseEntity<String> deleteAttender(@PathVariable UUID eventId, @PathVariable UUID userId) {
+
+        eventService.deleteAttender(eventId, userId);
+
+        return ResponseEntity.ok().body("Felhasználó sikeresen törölve!");
     }
 }

@@ -5,8 +5,12 @@ import hu.unideb.inf.segitsegosszesitorendszer.request.AddEventRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.response.EventResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IEventService {
+
+    PubEvent getById(UUID id);
+
     void addEvent(AddEventRequest request, String username);
 
     List<PubEvent> getAllCreated(String username);
@@ -15,4 +19,7 @@ public interface IEventService {
 
     List<EventResponse> transformEventToEventResponse(List<PubEvent> events);
 
+    void addAttender(UUID eventId, UUID userId);
+
+    void deleteAttender(UUID eventId, UUID userId);
 }

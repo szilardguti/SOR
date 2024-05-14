@@ -7,13 +7,12 @@ import hu.unideb.inf.segitsegosszesitorendszer.response.EventResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.debt.IDebtService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.pub.IPubService;
 import hu.unideb.inf.segitsegosszesitorendszer.service.user.IUserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +24,17 @@ public class EventService implements IEventService {
     private final IUserService userService;
 
     private final EventRepository eventRepository;
+
+    @Override
+    public PubEvent getById(UUID id) {
+        Optional<PubEvent> event = eventRepository.findById(id);
+
+        if (event.isEmpty())
+            throw new EntityNotFoundException(
+                    String.format("Az esemény nem található az azonosítóval: %s", id)
+            );
+        return event.get();
+    }
 
     @Override
     public void addEvent(AddEventRequest request, String username) {
@@ -89,5 +99,29 @@ public class EventService implements IEventService {
             responses.add(response);
         }
         return responses;
+    }
+
+    @Override
+    public void addAttender(UUID eventId, UUID userId) {
+        PubEvent event = getById(eventId);
+        User user = userService.getById(userId);
+
+        if (event.getRegisteredUsers().contains(user))
+            return;
+
+        event.addAttendingUser(user);
+        eventRepository.save(event);
+    }
+
+    @Override
+    public void deleteAttender(UUID eventId, UUID userId) {
+        PubEvent event = getById(eventId);
+        User user = userService.getById(userId);
+
+        if (!event.getRegisteredUsers().contains(user))
+            return;
+
+        event.deleteAttendingUser(user);
+        eventRepository.save(event);
     }
 }

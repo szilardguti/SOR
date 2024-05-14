@@ -42,4 +42,6 @@ public class PubEvent {
     public boolean addAttendingUser(User user) {
         return this.registeredUsers.add(user);
     }
+
+    public boolean deleteAttendingUser(User user) { return this.registeredUsers.remove(user);}
 }
