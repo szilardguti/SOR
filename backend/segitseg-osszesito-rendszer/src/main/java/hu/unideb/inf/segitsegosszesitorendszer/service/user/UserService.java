@@ -1,5 +1,6 @@
 package hu.unideb.inf.segitsegosszesitorendszer.service.user;
 
+import hu.unideb.inf.segitsegosszesitorendszer.entity.PubEvent;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.Role;
 import hu.unideb.inf.segitsegosszesitorendszer.entity.User;
 import hu.unideb.inf.segitsegosszesitorendszer.enums.Roles;
@@ -7,6 +8,8 @@ import hu.unideb.inf.segitsegosszesitorendszer.repository.RoleRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.repository.UserRepository;
 import hu.unideb.inf.segitsegosszesitorendszer.request.LoginRequest;
 import hu.unideb.inf.segitsegosszesitorendszer.request.UserRegisterRequest;
+import hu.unideb.inf.segitsegosszesitorendszer.response.EventAttenderResponse;
+import hu.unideb.inf.segitsegosszesitorendszer.response.EventResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.LoginResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.response.RegisterResponse;
 import hu.unideb.inf.segitsegosszesitorendszer.service.JwtService;
@@ -20,9 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -126,5 +127,21 @@ public class UserService implements IUserService {
         user.setRoles(userRoles);
 
         userRepository.save(user);
+    }
+
+    @Override
+    public List<EventAttenderResponse> transformUserToEventAttenderResponse(List<User> users) {
+        List<EventAttenderResponse> responses = new ArrayList<>();
+
+        for (User user:
+                users) {
+            EventAttenderResponse response = new EventAttenderResponse(
+                    user.getUser_id(),
+                    user.getUsername(),
+                    user.getEmail()
+            );
+            responses.add(response);
+        }
+        return responses;
     }
 }

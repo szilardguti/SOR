@@ -7,6 +7,6 @@ import java.util.UUID;
 public record AddDebtRequest(
 
         @NotNull
-        UUID debtorUserId
+        UUID inDebtUserId
 ) {
 }

@@ -1,10 +1,7 @@
 package hu.unideb.inf.segitsegosszesitorendszer.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -17,6 +14,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "pub_event_table")
 public class PubEvent {
 
@@ -32,6 +30,16 @@ public class PubEvent {
 
     private LocalDateTime eventEnd; // simple 'end' made jdbc errors lol
 
+    @Column(nullable = true)
+    private UUID debtId;
+
+    @Column(nullable = false)
+    private UUID createdByUser;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<User> registeredUsers = new HashSet<>();
+
+    public boolean addAttendingUser(User user) {
+        return this.registeredUsers.add(user);
+    }
 }

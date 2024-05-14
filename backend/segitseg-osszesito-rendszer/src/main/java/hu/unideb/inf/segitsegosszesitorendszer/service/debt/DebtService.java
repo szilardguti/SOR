@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -113,7 +112,7 @@ public class DebtService implements IDebtService {
     @Override
     public UUID addDebt(AddDebtRequest request, String username) {
         User debtorUser = userService.getByUsername(username);
-        User inDebtUser = userService.getById(request.debtorUserId());
+        User inDebtUser = userService.getById(request.inDebtUserId());
 
         if (!friendService.friendExists(debtorUser.getUser_id(), inDebtUser.getUser_id()))
             return null;
